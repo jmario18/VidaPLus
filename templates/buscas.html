@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Buscas</title>
+    </head>
+    <body>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('cadastrarPacienteRoute') }}">Cadastrar Paciente</a></li>
+                <li><a href="{{ url_for('cadastrarProfissionalRoute') }}">Cadastrar Profissional</a></li>
+                <li><a href="{{ url_for('consultasRoute') }}">Consultas</a></li>
+                <li><a href="{{ url_for('verificarPacienteRoute') }}">Pacientes</a></li>
+                <li><a href="{{ url_for('verificarProfissionalRoute') }}">Profissionais</a></li>
+                <li><a href="{{ url_for('verificarLocalRoute') }}">Locais</a></li>
+            </ul>
+        </nav>
+        <h1>Buscar</h1>
+        <form method="post">
+            {% if tipo == "profissional" %}
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required><br>
+            {% elif tipo == "paciente" %}
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required><br>
+            {% else %}
+                <p>Tipo de busca inválido.</p>
+            {% endif %}
+            
+
+            <button type="submit">Buscar</button>
+        </form>
+    </body>
+</html>
