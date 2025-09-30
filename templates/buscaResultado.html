@@ -3,17 +3,10 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-        <title>VidaPlus</title>
+        <title>Resultado</title>
     </head>
     <body>
-        <header>
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo VidaPlus" class="logo">
-            <h3>VidaPlus - Sistema de Gerenciamento Hospitalar.</h3>
-            <h3>{Local}</h3>
-        </header>
-        <h1>Bem-vindo ao Sistema de Gerenciamento VidaPlus</h1>
         <nav>
             <ul>
                 <li><a href="{{ url_for('cadastrarPacienteRoute') }}">Cadastrar Paciente</a></li>
@@ -24,13 +17,27 @@
             </ul>
         </nav>
         <div class="content">
-            {% for leito in leitos %}
-                <div class="leito-card">
-                    <h2>Leito {{ leito.id }}</h2>
-                    <p>Status: {{ leito.status }}</p>
-                    <p>Local: {{ leito.local }}</p>
-                </div>
-            {% endfor %}
+        <h1>Resultado da Busca</h1>
+        {% if tipo=="profissional" %}
+        <ul>
+                {% for profissional in profissionais %}
+            <li>
+                {{ profissional.nome }} - {{ profissional.crm }}
+                <a href="{{ url_for('selecionarProfissionalRoute', id=profissional.id) }}">Selecionar</a>
+            </li>
+        {% endfor %}
+        </ul>
+        {% elif tipo=="paciente" %}
+            <ul>
+                {% for paciente in pacientes %}
+            <li>
+                {{ paciente.nome }} - {{ paciente.cpf }}
+                <a href="{{ url_for('selecionarPacienteRoute', id=paciente.id) }}">Selecionar</a>
+            </li>
+                {% endfor %}
+    </ul>
+        {% else %}
+            <p>Tipo inválido.</p>
+        {% endif %}
         </div>
     </body>
-</html>

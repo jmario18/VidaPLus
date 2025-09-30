@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <title>VidaPlus</title>
+    </head>
+    <body>
+        <header>
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo VidaPlus" class="logo">
+            <h3>VidaPlus - Sistema de Gerenciamento Hospitalar.</h3>
+            <h1>Bem-vindo ao Sistema de Gerenciamento VidaPlus</h1>
+        </header>
+        
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('cadastrarPacienteRoute') }}">Cadastrar Paciente</a></li>
+                <li><a href="{{ url_for('cadastrarProfissionalRoute') }}">Cadastrar Profissional</a></li>
+                <li><a href="{{ url_for('marcarConsultaRoute') }}">Consultas</a></li>
+                <li><a href="{{ url_for('buscarPacienteRoute') }}">Pacientes</a></li>
+                <li><a href="{{ url_for('buscarProfissionalRoute') }}">Profissionais</a></li>
+            </ul>
+        </nav>
+        {% if erro %}
+            <p style="color: red; text-align: center;">{{ erro }}</p>
+        {% endif %}
+        {% if sucesso %}
+            <p style="color: green; text-align: center;">{{ sucesso }}</p>
+        {% endif %}
+        <div class="content">
+            
+            <form action="{{ url_for('marcarConsultaRoute') }}" method="post" class="consulta-form">
+                <h2>Marcar Consulta</h2>
+                
+                <label for="paciente">Paciente:</label>
+                <input type="text" id="buscaPaciente" placeholder="Buscar por nome ou CPF..." onkeyup="filtrarPacientes()">
+
+                <select id="paciente" name="paciente" required>
+                    <option value="">Selecione um paciente</option>
+                    {% for paciente in pacientes %}
+                        <option value="{{ paciente.id }}" data-nome="{{ paciente.nome|lower }}" data-cpf="{{ paciente.cpf|lower }}">
+                            {{ paciente.nome }} (CPF: {{ paciente.cpf }})
+                        </option>
+                    {% endfor %}
+                </select><br>
+
+                <script>
+                function filtrarPacientes() {
+                    var input = document.getElementById('buscaPaciente').value.toLowerCase();
+                    var select = document.getElementById('paciente');
+                    for (var i = 1; i < select.options.length; i++) {
+                        var nome = select.options[i].getAttribute('data-nome');
+                        var cpf = select.options[i].getAttribute('data-cpf');
+                        if (nome.includes(input) || cpf.includes(input)) {
+                            select.options[i].style.display = '';
+                        } else {
+                            select.options[i].style.display = 'none';
+                        }
+                    }
+                }
+                </script>
+   
+                <label for="profissional">Profissional:</label>
+                <input type="text" id="buscaProfissional" placeholder="Buscar por nome ou CRM..." onkeyup="filtrarProfissionais()">
+
+                <select id="profissional" name="profissional" required>
+                    <option value="">Selecione um médico</option>
+                    {% for profissional in profissionais %}
+                        {% if profissional.cargo == "Médico" %}
+                            <option value="{{ profissional.id }}" data-nome="{{ profissional.nome|lower }}" data-crm="{{ profissional.crm|lower }}">
+                                {{ profissional.nome }} (CRM: {{ profissional.crm }})
+                            </option>
+                        {% endif %}
+                    {% endfor %}
+                </select><br>
+
+                <script>
+                function filtrarProfissionais() {
+                    var input = document.getElementById('buscaProfissional').value.toLowerCase();
+                    var select = document.getElementById('profissional');
+                    for (var i = 1; i < select.options.length; i++) {
+                        var nome = select.options[i].getAttribute('data-nome');
+                        var crm = select.options[i].getAttribute('data-crm');
+                        if (nome.includes(input) || crm.includes(input)) {
+                            select.options[i].style.display = '';
+                        } else {
+                            select.options[i].style.display = 'none';
+                        }
+                    }
+                }
+                </script>
+
+                <label for="data">Data:</label>
+                <input type="date" id="data" name="data" required>
+
+                <label for="hora">Horário:</label>
+                <select id="hora" name="hora" required>
+                    <option value="">Selecione um horário</option>
+                    {% for h in "08,08.5,09,09.5,10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,15,15.5,16,16.5,17,17.5,18".split(",") %}
+                        {% if "." in h %}
+                            {% set hora = h.split(".")[0] %}
+                            {% set minuto = "30" %}
+                        {% else %}
+                            {% set hora = h %}
+                            {% set minuto = "00" %}
+                        {% endif %}
+                        <option value="{{ hora }}:{{ minuto }}">{{ hora }}:{{ minuto }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="motivo">Motivo:</label>
+                <input type="text" id="motivo" name="motivo" required>
+
+                <label for="observacoes">Observações:</label>
+                <textarea id="observacoes" name="observacoes"></textarea><br>
+
+                <button type="submit">Pesquisar Disponibilidade</button>
+            </form>
+        </div>
+    </body>
+</html>

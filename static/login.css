@@ -1,0 +1,24 @@
+div {
+    border: #000000 1px solid;
+    border-radius: 5px;
+    padding: 10px;
+    align-content: center;
+    width:  350px;
+    height: 300px;
+    box-shadow: #000000 2px 2px 5px;
+    margin-left: 40%;
+    background-color: #ffffff;
+}
+
+h1 {
+    text-align: center;
+    color: #055f44;
+    font-size: 35px;
+    margin-bottom: 20px;
+    margin-top: 10%;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #c6e7d3;
+}

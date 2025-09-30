@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <title>Resultado</title>
+    </head>
+    <body>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('cadastrarPacienteRoute') }}">Cadastrar Paciente</a></li>
+                <li><a href="{{ url_for('cadastrarProfissionalRoute') }}">Cadastrar Profissional</a></li>
+                <li><a href="{{ url_for('marcarConsultaRoute') }}">Consultas</a></li>
+                <li><a href="{{ url_for('buscarPacienteRoute') }}">Pacientes</a></li>
+                <li><a href="{{ url_for('buscarProfissionalRoute') }}">Profissionais</a></li>
+            </ul>
+        </nav>
+        <div class="content">
+        {% if tipo == 'paciente' and paciente %}
+        <h2>Paciente Selecionado</h2>
+        <ul>
+            <li><strong>ID:</strong> {{ paciente.id }}</li>
+            <li><strong>Nome:</strong> {{ paciente.nome }}</li>
+            <li><strong>CPF:</strong> {{ paciente.cpf }}</li>
+            <li><strong>Data de Nascimento:</strong> {{ paciente.dataNasc }}</li>
+            <li><strong>Endereço:</strong> {{ paciente.endereco }}</li>
+            <li><strong>Telefone:</strong> {{ paciente.telefone }}</li>
+        </ul>
+    {% elif tipo == 'profissional' and profissional %}
+        <h2>Profissional Selecionado</h2>
+        <ul>
+            <li><strong>ID:</strong> {{ profissional.id }}</li>
+            <li><strong>Nome:</strong> {{ profissional.nome }}</li>
+            <li><strong>Cargo:</strong> {{ profissional.cargo }}</li>
+            <li><strong>Email:</strong> {{ profissional.email }}</li>
+            <li><strong>Telefone:</strong> {{ profissional.telefone }}</li>
+            <li><strong>CRM:</strong> {{ profissional.crm }}</li>
+        </ul>
+    {% else %}
+        <p>Nenhum resultado encontrado.</p>
+    {% endif %}
+        </div>
+    </body>
+</html>

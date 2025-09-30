@@ -1,0 +1,109 @@
+body{
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    margin-left: 250px;
+
+}
+
+div.content {
+    list-style: none;
+    margin-left: 250px;
+    top: 10%;
+}
+
+nav{
+    background-color: #05e3a4;
+}
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding-left: 0;
+    overflow: hidden;
+    display : flex;
+    align-items: stretch;
+    position: absolute;
+    height: 100%;
+    width: 200px;
+    left: 0px;
+    flex-wrap: wrap;
+    flex-direction: column;
+    background-color: #05e3a4;
+    top: 0;
+    box-shadow: #000000 2px 0px 5px;
+}
+
+nav ul li {
+    height: 50px;
+    border-bottom: #000000 1px solid;
+}
+
+nav ul li a{
+    width: 100%;
+    display: block;
+    height: 100%;
+    color: black;
+    text-decoration: none;
+    align-content: center;
+    text-align: center;
+    font-size: 17px;
+}
+
+nav ul li a:hover {
+    background-color: #02a380;
+    color: white;
+    animation-delay: 1s;
+}
+
+nav ul li a:active {
+    background-color: #017961;
+    color: white;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    font-size: 20px;
+}
+
+textarea{
+    width: 400px;
+    height: 200px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+input[type="text"], input[type="email"], input[type="date"], input[type="password"] , select, textarea{
+    width: 300px;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button{
+    margin-top: 10px;
+    background-color : #05e3a4;
+    font-size: 20px;
+}
+
+button:hover {
+    background-color: #02a380;
+    color: white;
+    animation-delay: 1s;
+}
+div ul li {
+    font-size: 20px;
+    margin-bottom: 10px;
+    border: #000000 1px solid;
+    padding: 0%;
+    margin: 0%;
+    min-width: 400px;
+    max-width: 500px;
+    min-height: 30px;
+    list-style-type: none;
+    align-content: center;
+    justify-content: center;
+}
