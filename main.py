@@ -44,15 +44,11 @@ login_manager.login_view = 'home'
 @app.route("/", methods=["GET", "POST"])
 def home():
     session.clear()
-    admin = '07521564396'
-    adminh = generate_password_hash(admin)
-    print(f'{admin} = {adminh}')
     if request.method == "POST":        
         if verificaLogin():
             #if current_user.isAdmin:
                 #session['isAdmin'] = True
             logging.info(f"Login bem-sucedido para usuário: {current_user}")
-            print('show')
             return redirect(url_for('index'))
         else:
             logging.warning(f"Falha de login para usuário: {login}")
@@ -87,7 +83,6 @@ def index():
         return render_template('index.html', consultas=consultas)
     if current_user.tipoUsuario == 'profissional':
         consultas = buscarConsultaProfissionalData(current_user.idProfissional)
-        print(consultas)
         return render_template('index.html', leitos=leito, consultas=consultas, locais=locais)
     return render_template('index.html', leitos=leito, pacientes=pacientes, locais=locais)
 
@@ -139,7 +134,6 @@ def marcarConsultaRoute():
 def marcarConsultaPacienteRoute(id):
     profissionais = buscarProfissionais("")
     locais = buscarLocais("")
-    print('consultaPaciente')
     if request.method == "POST":
         if cadastrarConsultaPaciente(int(id)):
             return redirect(url_for('index'))
@@ -152,14 +146,10 @@ def marcarConsultaPacienteRoute(id):
 def marcarConsultaProfissionalRoute(idProf):
     paciente = buscarPacientes("")
     locais = buscarLocais("")
-    print(current_user.idProfissional)
-    print(f'id:{type(int(idProf))}')
-    print('-------------------------')
     if request.method == "POST":
         if cadastrarConsultaProfissional(int(idProf)):
             return redirect(url_for('index'))
         else:
-            print('sexo')
             return render_template('marcarConsulta.html', erro="Horário indisponível para o profissional selecionado.", pacientes=paciente,locais=locais)
     return render_template('marcarConsulta.html', pacientes=paciente,locais=locais)
 
@@ -231,17 +221,16 @@ def consultasProfissionalRoute(): #ajeitar para pegar de acordo com o usuario
     if request.method == "POST":
         if current_user.isAdmin == 1:
             profissional_id = request.form.get("profissional")
-            print('data1')
-            print(f'data = {data}')
+
             if data != '':
                 consultas = buscarConsultaProfissionalData(profissional_id, data)
-                print(f'consultas: {consultas}')
+
             else:
                 consultas = buscarConsultaProfissionalData(profissional_id)
         else:
             if data != '':
                 consultas = buscarConsultaProfissionalData(current_user.idProfissional, data)
-                print(f'consultas: {consultas}')
+
             else:
                 consultas = buscarConsultaProfissionalData(current_user.idProfissional)
         return render_template('verificarConsultas.html', profissionais=profissionais, consultas=consultas)
@@ -271,8 +260,7 @@ def verificarLeitosRoute():
     usuario = session.get('usuario')
     leitos = buscarLeitos("")
     locais = buscarLocais("")
-    print('-'*100)
-    print(leitos)
+
     if request.method == "POST":
         unidadeId = request.form.get("unidade")
         leitos = buscarLeitoPorUnidade(unidadeId)
@@ -346,7 +334,6 @@ def editarProfissionalRoute(id):
         crm = request.form.get("crm")
         dataNasc = request.form.get("data_nascimento")
         cpf = request.form.get("cpf")
-        print(profissional)
         profissional['nome'] = nome
         profissional['email'] = email
         profissional['telefone'] = telefone
@@ -376,10 +363,10 @@ def logout():
 @app.route("/videochamadas/<chave>", methods=["POST", "GET"]) 
 @login_required
 def videochamadasRoute(chave):
-    print('--------------------------------------------------------')
+
     consulta = buscarConsultaPorChave(chave)
     prontuario = verificaProntuario(consulta.paciente)
-    print(prontuario)
+
     if current_user.tipoUsuario == 'profissional':
         
         if request.method == "POST":
@@ -397,7 +384,6 @@ def handle_join(data):
     room = data["room"]
     user = data["user"]
     join_room(room)
-    print(f"{user} entrou na sala {room}")
     emit("user_joined", {"user": user}, room=room, include_self=False)
 
 @socketio.on("signal")
@@ -419,7 +405,7 @@ def handle_disconnect():
     Quando alguém sai (opcional)
     
     """
-    print("Usuário desconectou")
+
 
 @app.route("/verificarProntuario/paciente<id>", methods=["GET"])
 @login_required
@@ -440,9 +426,9 @@ def gerenciarLeitoRoute(id):
     local = buscarLocais("")
     idsLeitos = {l['idPaciente'] for l in leitos if l.get('idPaciente')}
     pacientes_disponiveis = [p for p in pacientes if p['id'] not in idsLeitos]
-    print('-'*10)
+
     if request.method == "POST":
-        print(leito['id'])
+
         ocuparLeito(leito)
         return redirect(url_for('verificarLeitoRoute', id=id))
     return render_template('leito.html', leito=leito, pacientes=pacientes_disponiveis, local=local)
@@ -453,7 +439,7 @@ def verificarLeitoRoute(id):
     leito = buscarLeitoPorId(id)
     paciente = buscarPacientePorId(leito['idPaciente'])
     local = buscarLocais("")
-    print(leito['observacoes'])
+
     if request.method == "POST":
         acao = request.form.get("acao")
         if acao == "atualizar":
@@ -475,7 +461,7 @@ def relatoriosRoute(id):
     leitos = buscarLeitoPorUnidade(id)
     localT = buscarLocalId(id)
     local = localT[0]
-    print(leitos)
+
     if request.method=="POST":
         soro = request.form.get('quantidade_soro')
         gaze = request.form.get('quantidade_gaze')
@@ -579,7 +565,7 @@ def cadastrarConsultaPaciente(id):
     motivo = request.form.get("motivo")
     observacoes = request.form.get("observacoes") #verificar se será teleconsulta
     local = request.form.get("local")
-    print(f'Cads id:{id}')
+
     if verificaDisponibilidade(profissional, f'{data} {hora}'):
         if local == 'online':
             try:
@@ -600,8 +586,7 @@ def cadastrarConsultaPaciente(id):
         return False
     
 def cadastrarConsultaProfissional(id):
-    print(f'Cadf id:{id}')
-    print('+++++++++++++++++++++++++++++++')
+
     paciente = request.form.get("paciente")
     data = request.form.get("data")
     hora = request.form.get("hora")
@@ -706,7 +691,7 @@ def cadastrarProntuario(consulta: Consulta, paciente: Paciente):
         logging.error(f"Erro ao cadastrar prontuário: {e}")
 
 def atualizarSuprimentos(id, soro, gaze, alcool, medicamento, suprimentos):
-    print(suprimentos)
+
     soro = suprimentos['soro'] + int(soro)
     gaze = suprimentos['gaze'] + int(gaze)
     alcool = suprimentos['alcool'] + int(alcool)
@@ -718,7 +703,6 @@ def verificaLogin():
         usuario = login(usuario = request.form.get("login"))
         if check_password_hash(usuario.senha,request.form.get('senha')):
             login_user(usuario)
-            print("Usuário autenticado:", current_user.is_authenticated)
             session['usuario'] = {
                 'id': usuario.id,
                 'nome': usuario.login,

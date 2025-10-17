@@ -24,7 +24,7 @@ def registrarConsulta(pacienteId, profissionalId, data, hora, motivo, observacoe
     conexao = connection.criar_conexao()
     cursor = conexao.cursor()
     data = f"{data} {hora}" 
-    print(f'local = {local}')
+
     try:
         sql = "INSERT INTO consulta (pacienteId, profissionalId, dataConsulta, motivo, observacoes, idLocal, statusConsulta) VALUES (%s, %s, %s, %s, %s, %s, 'Pendente')"
         valores = (pacienteId, profissionalId, data, motivo, observacoes, local)
@@ -40,8 +40,7 @@ def registrarConsulta(pacienteId, profissionalId, data, hora, motivo, observacoe
 def registrarDiagnostico(idConsulta, diagnostico):
     conexao = connection.criar_conexao()
     cursor = conexao.cursor()
-    print(idConsulta)
-    print(diagnostico)
+
     try:
         sql = "UPDATE Consulta SET diagnostico = %s WHERE consultaId = %s"
         valores = (diagnostico, idConsulta)
@@ -147,7 +146,6 @@ def buscarConsultaAntigas(pacienteId):
 def buscarConsultaProfissionalData(profissionalId, data=None):
     conexao = connection.criar_conexao()
     cursor = conexao.cursor()
-    print(f'data1 = {data}')
     try:
         if data != None:
             sql = """
@@ -184,7 +182,6 @@ def buscarConsultaProfissionalData(profissionalId, data=None):
                 'status': resultado[7]
             }
             consultas.append(consulta)
-        print(consultas)
         return consultas
     finally:
         cursor.close()

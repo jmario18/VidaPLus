@@ -25,7 +25,6 @@ def alterarU(id, senha):
         cursor = conexao.cursor()
         sql = "update usuario set senha = %s where userId = %s "
         valores = (senha, id)
-        print(senha)
         cursor.execute(sql, valores)
         usuario = cursor.fetchone()
         print(f'alterando usuario {senha}')
