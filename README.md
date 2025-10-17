@@ -10,3 +10,4 @@ gerenciador de unidades de saúde
 6 - Para testar a maioria das funcionalidades, entre como admin, com o usuário admin e senha admin
 7 - Algumas funcionalidades exigem ser um paciente ou profissional, como registrar uma receita por exemplo
 8 - Caso tenha se cadastrado como paciente, o seu login será {primeiro nome}.{ultimo nome}, tudo minusculo com acentos, e a senha o cpf cadastrado
+9 - Caso queira visualizar um usuario ja cadastrado utilize o login joão.oliveira e a senha 10037121936 para verificar o sistema como paciente, como profissional utilize jose.ferreira e senha 06478521696.
