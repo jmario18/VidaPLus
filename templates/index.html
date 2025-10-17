@@ -5,32 +5,152 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
         <title>VidaPlus</title>
     </head>
     <body>
         <header>
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo VidaPlus" class="logo">
             <h3>VidaPlus - Sistema de Gerenciamento Hospitalar.</h3>
-            <h3>{Local}</h3>
+            <p>Usuário: {{current_user.login}}</p>
         </header>
-        <h1>Bem-vindo ao Sistema de Gerenciamento VidaPlus</h1>
         <nav>
             <ul>
+                {% if current_user.isAdmin == 1 %}
                 <li><a href="{{ url_for('cadastrarPacienteRoute') }}">Cadastrar Paciente</a></li>
                 <li><a href="{{ url_for('cadastrarProfissionalRoute') }}">Cadastrar Profissional</a></li>
-                <li><a href="{{ url_for('marcarConsultaRoute') }}">Consultas</a></li>
+                <li><a href="{{ url_for('cadastrarLocalRoute') }}">Cadastrar Unidade</a></li>
+                <li><a href="{{ url_for('cadastrarLeitoRoute') }}">Cadastrar Leito</a></li>
+                <li><a href="{{ url_for('cadastrarUsuarioRoute') }}">Cadastrar Usuario</a></li>
+                {% endif %}
+                {% if current_user.tipoUsuario == 'paciente' %}
+                <li><a href="{{ url_for('marcarConsultaPacienteRoute', id = current_user.idPaciente) }}">Marcar Consultas</a></li>
+                <li><a href="{{ url_for('verificarProntuarioPacienteRoute', id = current_user.idPaciente) }}">Verificar Prontuario</a></li>
+                <li><a href="{{ url_for('receitasRoute', id = current_user.idPaciente) }}">Verificar Receitas</a></li>
+                <li><a href="{{ url_for('historicoConsultasRoute', id = current_user.idPaciente) }}">Histórico de Consultas</a></li>
+                {% elif current_user.tipoUsuario == 'profissional' %}
+                <li><a href="{{ url_for('marcarConsultaProfissionalRoute', idProf = current_user.idProfissional) }}">Marcar Consultas</a></li>
+                {% else %}
+                <li><a href="{{ url_for('marcarConsultaRoute') }}">Marcar Consultas</a></li>
+                {% endif %}
+                {% if current_user.tipoUsuario != 'paciente' %}
                 <li><a href="{{ url_for('buscarPacienteRoute') }}">Pacientes</a></li>
-                <li><a href="{{ url_for('buscarProfissionalRoute') }}">Profissionais</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('buscarProfissionalRoute') }}">Pesquisar Profissionais</a></li>
+                {% if current_user.tipoUsuario == 'profissional' or current_user.isAdmin == 1 %}
+                <li><a href="{{ url_for('consultasProfissionalRoute') }}">Verificar Consultas</a></li>
+                <li><a href="{{ url_for('verificarLeitosRoute') }}">Verificar Leitos</a></li>
+                {% endif %}
+                <li><a href=" {{ url_for('logout')}}">Sair</a></li>
+                
             </ul>
         </nav>
         <div class="content">
+            <h1>Bem-vindo ao Sistema de Gerenciamento VidaPlus</h1>
+            {% if current_user.isAdmin %}
+            {% if msg %}
+                <p style="color: green;">{{ msg }}</p>
+            {%endif%}
+            <div class="leitos">
             {% for leito in leitos %}
                 <div class="leito-card">
-                    <h2>Leito {{ leito.id }}</h2>
-                    <p>Status: {{ leito.status }}</p>
-                    <p>Local: {{ leito.local }}</p>
+                    {% if leito.statusLeito == 'indisponivel'%}
+                    <h2><a href="{{url_for('verificarLeitoRoute', id=leito.id)}}">Leito {{ leito.numero }}</a></h2>
+                    {% else %}
+                    <h2><a href="{{url_for('gerenciarLeitoRoute', id=leito.id)}}">Leito {{ leito.numero }}</a></h2>
+                    {%endif%}
+                    <p>Status: {{ leito.statusLeito }}</p>
+                    <p>Tipo: {{ leito.tipo  }}</p>
+                    <p>Local: {{ leito.unidadeId }}</p>
+                    {% for paciente in pacientes%}
+                    {% if paciente.id == leito.idPaciente%}
+                    <p>Paciente: {{ paciente.nome }}</p>
+                    {%endif%}
+                    {%endfor%}
                 </div>
             {% endfor %}
+            {% endif %}
+            
+            {%if current_user.tipoUsuario == 'paciente' %}
+                 {% if consultas %}
+        <h2>Consultas encontradas:</h2>
+        <table border="1">
+            <tr>
+                <th>ID Consulta</th>
+                <th>Paciente</th>
+                <th>Data</th>
+                <th>Motivo</th>
+                <th>Observações</th>
+                {% if consultas|selectattr('chave')|list %}
+                    <th>Chave</th>
+                {% endif %}
+                <th>Local Consulta</th>
+            </tr>
+            {% for consulta in consultas %}
+            <tr>
+                <td>{{ consulta.id }}</td>
+                <td>{{ consulta.pacienteNome }}</td>
+                <td>{{ consulta.dataConsulta }}</td>
+                <td>{{ consulta.motivo }}</td>
+                <td>{{ consulta.observacoes }}</td>
+                {% if consulta.chave %}
+                    <td><a href="{{ url_for('videochamadasRoute', chave=consulta.chave) }}">{{ consulta.chave }}</a></td>
+                {% elif consultas|selectattr('chave')|list %}
+                    <td></td>
+                {% endif %}
+                <td>{{ consulta.local | default('Online', true) }}</td>
+            </tr>
+            {% endfor %}
+        </table>    
+        {% endif %}
+            {% endif %}
+            {%if current_user.tipoUsuario == 'profissional' %}
+                 {% if consultas %}
+        <h2>Consultas encontradas:</h2>
+        <table border="1">
+            <tr>
+                <th>ID Consulta</th>
+                <th>Paciente</th>
+                <th>Data</th>
+                <th>Motivo</th>
+                <th>Observações</th>
+                {% if consultas|selectattr('chave')|list %}
+                    <th>Chave</th>
+                {% endif %}
+                <th>Receita</th>
+            </tr>
+            {% for consulta in consultas %}
+            <tr>
+                <td>{{ consulta.id }}</td>
+                <td>{{ consulta.pacienteNome }}</td>
+                <td>{{ consulta.dataConsulta }}</td>
+                <td>{{ consulta.motivo }}</td>
+                <td>{{ consulta.observacoes }}</td>
+                {% if consulta.chave %}
+                    <td><a href="{{ url_for('videochamadasRoute', chave=consulta.chave) }}">{{ consulta.chave }}</a></td>
+                {% elif consultas|selectattr('chave')|list %}
+                    <td></td>
+                {% endif %}
+                <td>{{ consulta.local | default('Online', true) }}</td>
+                <td> <a href="{{ url_for('gerarReceitaRoute', consulta_id=consulta.id) }}">Gerar Receita </a> </td>
+
+            </tr>
+            </tr>
+            {% endfor %}
+        </table>    
+        {% endif %}
+        {% endif %}
+
         </div>
+        {% if current_user.isAdmin %}
+        <div>
+        <table>
+            {% for local in locais %}
+            <tr>
+                <th><a href="{{url_for('relatoriosRoute', id=local.id)}}">Relatorios e Gerenciamento : {{local.nome}}</a></th>
+            </tr>
+            {% endfor %}
+        </table>
+            </div>
+        {% endif %}
     </body>
 </html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Consultas por Profissional</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Voltar</a></li>
+            <li><a href="{{ url_for('logout') }}">Sair</a></li>
+        </ul>
+    </nav>
+    <div class="content">
+        <h1>Consultas por Profissional</h1>
+        <form method="post">
+            <label for="profissional">Profissional:</label>
+            {{current_user.login}}
+            {{current_user.isAdmin}}
+            {{current_user.tipoUsuario}}
+            {% if current_user.isAdmin == 1 %}
+            <select name="profissional" id="profissional" required>
+                <option value="">Selecione</option>
+                {% for profissional in profissionais %}
+                <option value="{{ profissional.id }}">{{ profissional.nome }} ({{ profissional.cargo }})</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            <label for="data">Data:</label>
+            <input type="date" name="data" id="data">
+            <button type="submit">Buscar</button>
+
+        </form>
+
+        {% if consultas %}
+        <h2>Consultas encontradas:</h2>
+        <table border="1">
+            <tr>
+                <th>ID Consulta</th>
+                <th>Paciente</th>
+                <th>Data</th>
+                <th>Motivo</th>
+                <th>Observações</th>
+                <th>Chave</th>
+                <th>Local</th>
+                <th>Status</th>
+            </tr>
+            {% for consulta in consultas %}
+            <tr>
+                <td>{{ consulta.id }}</td>
+                <td>{{ consulta.pacienteNome }}</td>
+                <td>{{ consulta.dataConsulta }}</td>
+                <td>{{ consulta.motivo }}</td>
+                <td>{{ consulta.observacoes }}</td>
+                {% if consulta.chave != None %}
+                <td><a href="{{ url_for('videochamadasRoute', chave=consulta.chave) }}">{{ consulta.chave }}</a></td>
+                {% else %}
+                {% endif %}
+                <td>{{ consulta.diagnostico }}</td>
+                <td>{{ consulta.local }}</td>
+                <td>{{ consulta.status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% elif consultas is not none %}
+        <p>Nenhuma consulta encontrada para os critérios selecionados.</p>
+        {% endif %}
+    </div>
+</body>
+
+</html>

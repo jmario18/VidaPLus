@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='consulta.css') }}">
+  <title>Gerar Receita</title>
+</head>
+
+<body>
+  <nav>
+    <ul>
+      <li><a href="{{ url_for('index') }}">Voltar</a></li>
+      <li><a href="{{ url_for('logout') }}">Sair</a></li>
+    </ul>
+  </nav>
+  <div class="content">
+
+    <h1>Gerar Receita</h1>
+    {% if sucesso %}
+    <p style="color: green;">{{ sucesso }}</p>
+    {% endif %}
+
+    <h2>Dados da Consulta</h2>
+    <ul>
+      <li><strong>ID Consulta:</strong> {{ consulta.idConsulta }}</li>
+      <li><strong>Data:</strong> {{ consulta.dataConsulta }}</li>
+      <li><strong>Motivo:</strong> {{ consulta.motivo }}</li>
+      <li><strong>Observações:</strong> {{ consulta.observacoes }}</li>
+    </ul>
+
+    <h2>Dados do Paciente</h2>
+    <ul>
+      <li><strong>Nome:</strong> {{ paciente.nome }}</li>
+      <li><strong>CPF:</strong> {{ paciente.cpf }}</li>
+      <li><strong>Data de Nascimento:</strong> {{ paciente.dataNasc }}</li>
+      <li><strong>Telefone:</strong> {{ paciente.telefone }}</li>
+    </ul>
+    <form method="post">
+      <label for="descricao">Descrição da Receita:</label><br>
+      <textarea id="descricao" name="receita" rows="5" cols="50" required></textarea><br><br>
+      <label for="descricao">Diagnóstico</label><br>
+      <textarea id="descricao" name="diagnostico" rows="5" cols="50" required></textarea><br><br>
+      <button type="button" onclick="enviarTodosFormularios()">Cadastrar Receita</button> <a
+        href="{{url_for('verificarProntuarioPacienteRoute' , id=paciente.id)}}" target="_blank">VerificaProntuario</a>
+    </form>
+    {% if prontuario == "Não tem" %}
+    <div class="prontuario">
+      <form method="POST">
+        <div>
+          <label>Peso</label>
+          <input type="text" id="peso" name="peso" required>
+          <label>Altura</label>
+          <input type="text" id="altura" name="altura" required>
+          <label>Observações</label>
+          <textarea id="receita" name="observacoes"></textarea>
+        </div>
+        <div>
+          <fieldset>
+            <legend>Alergias</legend>
+
+            <label>Possui alergia a Penicilina?</label>
+            <select name="penicilina" required>
+              <option value="">Selecione</option>
+              <option value="1">Sim</option>
+              <option value="0">Não</option>
+            </select>
+            <br>
+
+            <label>Possui alergia a Amoxilina?</label>
+            <select name="amoxilina" required>
+              <option value="">Selecione</option>
+              <option value="1">Sim</option>
+              <option value="0">Não</option>
+            </select>
+            <br>
+
+            <label>Possui alergia a Ibuprofeno?</label>
+            <select name="ibuprofeno" required>
+              <option value="">Selecione</option>
+              <option value="1">Sim</option>
+              <option value="0">Não</option>
+            </select>
+            <br>
+
+            <label>Possui alergia a Dipirona?</label>
+            <select name="dipirona" required>
+              <option value="">Selecione</option>
+              <option value="1">Sim</option>
+              <option value="0">Não</option>
+            </select>
+            <br>
+
+            <label>Extra 1:</label>
+            <input type="text" name="extra1" placeholder="Outra alergia"><br>
+            <label>Extra 2:</label>
+            <input type="text" name="extra2" placeholder="Outra alergia"><br>
+            <label>Extra 3:</label>
+            <input type="text" name="extra3" placeholder="Outra alergia"><br>
+          </fieldset>
+        </div>
+      </form>
+      <div>
+        <fieldset>
+          <legend>Condições Médicas</legend>
+
+          <label>Pressão Alta?</label>
+          <select name="pressao_alta" required>
+            <option value="">Selecione</option>
+            <option value="1">Sim</option>
+            <option value="0">Não</option>
+          </select>
+          <br>
+
+          <label>Diabetes?</label>
+          <select name="diabetes" required>
+            <option value="">Selecione</option>
+            <option value="1">Sim</option>
+            <option value="0">Não</option>
+          </select>
+          <br>
+
+          <label>Asma?</label>
+          <select name="asma" required>
+            <option value="">Selecione</option>
+            <option value="1">Sim</option>
+            <option value="0">Não</option>
+          </select>
+          <br>
+
+          <label>Epilepsia?</label>
+          <select name="epilepsia" required>
+            <option value="">Selecione</option>
+            <option value="1">Sim</option>
+            <option value="0">Não</option>
+          </select>
+          <br>
+
+          <label>HIV?</label>
+          <select name="hiv" required>
+            <option value="">Selecione</option>
+            <option value="1">Sim</option>
+            <option value="0">Não</option>
+          </select>
+          <br>
+
+          <label>Gastrite?</label>
+          <select name="gastrite" required>
+            <option value="">Selecione</option>
+            <option value="1">Sim</option>
+            <option value="0">Não</option>
+          </select>
+          <br>
+
+          <label>Extra 1:</label>
+          <input type="text" name="condicao_extra1" placeholder="Outra condição"><br>
+          <label>Extra 2:</label>
+          <input type="text" name="condicao_extra2" placeholder="Outra condição"><br>
+          <label>Extra 3:</label>
+          <input type="text" name="condicao_extra3" placeholder="Outra condição"><br>
+        </fieldset>
+      </div>
+      </form>
+    </div>
+    {% endif %}
+
+    <script>
+      function enviarTodosFormularios() {
+        // Seleciona todos os formulários da página
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+          // Envia cada formulário
+          form.requestSubmit(); // Moderno e seguro
+        });
+      }
+    </script>
+  </div>
+</body>
+
+</html>

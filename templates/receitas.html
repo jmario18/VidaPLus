@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Receitas</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Voltar</a></li>
+            <li><a href="{{ url_for('logout') }}">Sair</a></li>
+        </ul>
+    </nav>
+    <div class="content">
+        <table border="1">
+            <tr>
+                <th>ID Receita</th>
+                <th>Descrição</th>
+                <th>Emissão</th>
+            </tr>
+            {% for receita in receitas %}
+            <tr>
+                <td>{{ receita.id }}</td>
+                <td>{{ receita.descricao }}</td>
+                <td>{{ receita.data_emissao }}</td>
+                <td><a href="{{ url_for('gerar_pdf_receita', id=receita.id) }}">Baixar</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Video Conferência</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='video.css') }}">
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+
+</head>
+
+<body>
+  <header>
+    <div>
+      <h2>Video Conferência</h2>
+      <div>Sala: <span id="room">{{ room }}</span> — Usuário: <strong id="username">{{ user }}</strong></div>
+    </div>
+  </header>
+
+  <main>
+    <div id="videos">
+      <!-- vídeo local (muted para evitar eco) -->
+      <div>
+        <label>Você</label><br>
+        <video id="localVideo" playsinline autoplay muted></video>
+      </div>
+
+      <!-- vídeo remoto (aparecerá quando o peer enviar stream) -->
+      <div>
+        <label>Remoto</label><br>
+        <video id="remoteVideo" playsinline autoplay></video>
+      </div>
+    </div>
+
+    <div id="controls">
+      <button id="btnToggleCam">Desligar câmera</button>
+      <button id="btnToggleMic">Mutar</button>
+      <button id="btnEnd">Encerrar</button>
+    </div>
+    {% if current_user.tipoUsuario == 'profissional'%}
+    <div class="consulta">
+      <form method="POST">
+        <div>
+          <label>Diagnostico</label>
+          <textarea id="diagnostico" name="diagnostico" required></textarea>
+        </div>
+        <div>
+          <label>Receita</label>
+          <textarea id="receita" name="receita" required></textarea>
+        </div>
+        <button type="button" style="align-self: flex-end;" onclick="enviarTodosFormularios()"> Registrar </button>
+        {% if prontuario == "Não tem" %}
+        <div class="prontuario">
+          <form method="POST">
+            <div>
+              <label>Peso</label>
+              <input type="text" id="peso" name="peso" required>
+              <label>Altura</label>
+              <input type="text" id="altura" name="altura" required>
+              <label>Observações</label>
+              <textarea id="receita" name="observacoes"></textarea>
+            </div>
+            <div>
+              <fieldset>
+                <legend>Alergias</legend>
+
+                <label>Possui alergia a Penicilina?</label>
+                <select name="penicilina" required>
+                  <option value="">Selecione</option>
+                  <option value="1">Sim</option>
+                  <option value="0">Não</option>
+                </select>
+                <br>
+
+                <label>Possui alergia a Amoxilina?</label>
+                <select name="amoxilina" required>
+                  <option value="">Selecione</option>
+                  <option value="1">Sim</option>
+                  <option value="0">Não</option>
+                </select>
+                <br>
+
+                <label>Possui alergia a Ibuprofeno?</label>
+                <select name="ibuprofeno" required>
+                  <option value="">Selecione</option>
+                  <option value="1">Sim</option>
+                  <option value="0">Não</option>
+                </select>
+                <br>
+
+                <label>Possui alergia a Dipirona?</label>
+                <select name="dipirona" required>
+                  <option value="">Selecione</option>
+                  <option value="1">Sim</option>
+                  <option value="0">Não</option>
+                </select>
+                <br>
+
+                <label>Extra 1:</label>
+                <input type="text" name="extra1" placeholder="Outra alergia"><br>
+                <label>Extra 2:</label>
+                <input type="text" name="extra2" placeholder="Outra alergia"><br>
+                <label>Extra 3:</label>
+                <input type="text" name="extra3" placeholder="Outra alergia"><br>
+              </fieldset>
+            </div>
+          </form>
+          <div>
+            <fieldset>
+              <legend>Condições Médicas</legend>
+
+              <label>Pressão Alta?</label>
+              <select name="pressao_alta" required>
+                <option value="">Selecione</option>
+                <option value="1">Sim</option>
+                <option value="0">Não</option>
+              </select>
+              <br>
+
+              <label>Diabetes?</label>
+              <select name="diabetes" required>
+                <option value="">Selecione</option>
+                <option value="1">Sim</option>
+                <option value="0">Não</option>
+              </select>
+              <br>
+
+              <label>Asma?</label>
+              <select name="asma" required>
+                <option value="">Selecione</option>
+                <option value="1">Sim</option>
+                <option value="0">Não</option>
+              </select>
+              <br>
+
+              <label>Epilepsia?</label>
+              <select name="epilepsia" required>
+                <option value="">Selecione</option>
+                <option value="1">Sim</option>
+                <option value="0">Não</option>
+              </select>
+              <br>
+
+              <label>HIV?</label>
+              <select name="hiv" required>
+                <option value="">Selecione</option>
+                <option value="1">Sim</option>
+                <option value="0">Não</option>
+              </select>
+              <br>
+
+              <label>Gastrite?</label>
+              <select name="gastrite" required>
+                <option value="">Selecione</option>
+                <option value="1">Sim</option>
+                <option value="0">Não</option>
+              </select>
+              <br>
+
+              <label>Extra 1:</label>
+              <input type="text" name="condicao_extra1" placeholder="Outra condição"><br>
+              <label>Extra 2:</label>
+              <input type="text" name="condicao_extra2" placeholder="Outra condição"><br>
+              <label>Extra 3:</label>
+              <input type="text" name="condicao_extra3" placeholder="Outra condição"><br>
+            </fieldset>
+          </div>
+      </form>
+    </div>
+    {% endif %}
+    </div>
+    {% endif %}
+    <div id="log"></div>
+  </main>
+
+  <script>
+    (function () {
+      // variáveis passadas pelo Jinja2
+      const room = "{{ room }}";
+      const user = "{{ user }}";
+
+      // UI
+      const localVideo = document.getElementById('localVideo');
+      const remoteVideo = document.getElementById('remoteVideo');
+      const logEl = document.getElementById('log');
+      const btnToggleCam = document.getElementById('btnToggleCam');
+      const btnToggleMic = document.getElementById('btnToggleMic');
+      const btnEnd = document.getElementById('btnEnd');
+
+      // Socket.IO
+      const socket = io();
+
+      // RTCPeerConnection config (STUN para testes)
+      const pcConfig = {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" }
+        ]
+      };
+
+      const pc = new RTCPeerConnection(pcConfig);
+      let localStream = null;
+      let isCameraOn = true;
+      let isMicOn = true;
+      let inCall = false;
+
+      // helpers de log
+      function log(...args) {
+        console.log(...args);
+        logEl.textContent = (new Date()).toLocaleTimeString() + " — " + args.join(" ");
+      }
+
+      // quando receber track do remoto
+      pc.ontrack = (event) => {
+        log("Recebeu track remoto");
+        // pode ser event.streams[0] ou construir a partir das tracks
+        if (event.streams && event.streams[0]) {
+          remoteVideo.srcObject = event.streams[0];
+        } else {
+          const ms = new MediaStream();
+          event.track && ms.addTrack(event.track);
+          remoteVideo.srcObject = ms;
+        }
+      };
+
+      // ICE candidates locais -> enviar para room
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit('signal', { room, user, iceCandidate: event.candidate });
+          log("Enviando ICE candidate");
+        }
+      };
+
+      // Função para obter mídia e adicionar ao pc (chame antes de entrar na sala)
+      async function startLocalStream() {
+        try {
+          localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          localVideo.srcObject = localStream;
+
+          // adiciona todas as tracks ao RTCPeerConnection
+          localStream.getTracks().forEach(track => {
+            pc.addTrack(track, localStream);
+          });
+
+          isCameraOn = localStream.getVideoTracks().some(t => t.enabled);
+          isMicOn = localStream.getAudioTracks().some(t => t.enabled);
+          log("Mídia local iniciada");
+        } catch (err) {
+          log("Erro ao acessar câmera/áudio:", err.message || err);
+          alert("Erro: não foi possível acessar câmera/áudio. Verifique permissões.");
+          throw err;
+        }
+      }
+
+      // Lógica de sinalização recebida do servidor
+      socket.on('signal', async (data) => {
+        try {
+          // se for offer
+          if (data.offer) {
+            log("Recebeu offer; setRemoteDescription...");
+            await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+
+            // garante que a stream local esteja disponível antes de criar answer
+            if (!localStream) {
+              await startLocalStream();
+            }
+
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            socket.emit('signal', { room, user, answer });
+            log("Enviou answer");
+          } else if (data.answer) {
+            log("Recebeu answer; aplicando setRemoteDescription...");
+            await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+          } else if (data.iceCandidate) {
+            log("Recebeu ICE candidate; adicionando...");
+            try {
+              await pc.addIceCandidate(data.iceCandidate);
+            } catch (e) {
+              console.warn("Erro adicionando ICE candidate:", e);
+            }
+          }
+        } catch (e) {
+          console.error("Erro no handler de signal:", e);
+        }
+      });
+
+      // Quando outro usuário entra -> os que já estavam na sala iniciam a offer
+      socket.on('user_joined', async (data) => {
+        // data.user é quem entrou (nome), e esse evento é enviado para a sala com include_self=False
+        log("user_joined:", data.user);
+        // Em salas de 2 pessoas, ao receber user_joined -> criar offer (quem já estava cria offer)
+        try {
+          // garante stream local antes de criar offer
+          if (!localStream) await startLocalStream();
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          socket.emit('signal', { room, user, offer });
+          log("Offer enviada para novo participante");
+        } catch (e) {
+          console.error("Erro criando offer:", e);
+        }
+      });
+
+      // join confirm (opcional) -- você pode usar se seu servidor emitir algo assim
+      socket.on('joined_success', (data) => {
+        log("Entrou na sala com sucesso:", data);
+      });
+
+      // Entrar na sala (após iniciar localStream)
+      async function joinRoom() {
+        try {
+          if (!localStream) await startLocalStream();
+          socket.emit('join', { room, user });
+          inCall = true;
+          log("Entrando na sala:", room);
+        } catch (e) {
+          console.error("Falha ao entrar na sala:", e);
+        }
+      }
+
+      // controles UI
+      btnToggleCam.addEventListener('click', () => {
+        if (!localStream) return;
+        localStream.getVideoTracks().forEach(t => t.enabled = !t.enabled);
+        isCameraOn = localStream.getVideoTracks().some(t => t.enabled);
+        btnToggleCam.textContent = isCameraOn ? "Desligar câmera" : "Ligar câmera";
+      });
+
+      btnToggleMic.addEventListener('click', () => {
+        if (!localStream) return;
+        localStream.getAudioTracks().forEach(t => t.enabled = !t.enabled);
+        isMicOn = localStream.getAudioTracks().some(t => t.enabled);
+        btnToggleMic.textContent = isMicOn ? "Mutar" : "Desmutar";
+      });
+
+      btnEnd.addEventListener('click', () => {
+        endCall();
+      });
+
+      // encerra a chamada localmente
+      function endCall() {
+        log("Encerrando chamada...");
+        // fecha tracks locais
+        if (localStream) {
+          localStream.getTracks().forEach(t => t.stop());
+          localStream = null;
+          window.location.href = "/index";
+        }
+        // limpar vídeos
+        localVideo.srcObject = null;
+        remoteVideo.srcObject = null;
+
+        // fechar PeerConnection (pode recriar depois)
+        try { pc.close(); } catch (e) { }
+        inCall = false;
+
+        // informar servidor que saiu - opcional: você pode implementar uma mensagem 'leave' no servidor
+        try { socket.disconnect(); } catch (e) { }
+        log("Chamada encerrada");
+        // recarregar página para permitir nova conexão (opcional)
+        // location.reload();
+      }
+
+      // inicia tudo automaticamente ao carregar a página
+      (async function init() {
+        try {
+          await startLocalStream(); // inicializa câmera antes de join
+          await joinRoom();
+        } catch (e) {
+          console.error("Inicialização falhou:", e);
+        }
+      })();
+
+      // antes de fechar a aba, tenta encerrar corretamente
+      window.addEventListener('beforeunload', () => {
+        try { socket.disconnect(); } catch (e) { }
+      });
+
+    })();
+    // Ao encerrar a chamada
+    function endCall() {
+      log("Encerrando chamada...");
+
+      // Enviar aviso para outros
+      socket.emit('leave', { room, user });
+
+      // fechar mídia local
+      if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+      }
+
+      // limpar vídeos
+      localVideo.srcObject = null;
+      remoteVideo.srcObject = null;
+
+      // fechar conexão peer
+      try { pc.close(); } catch (e) { }
+      inCall = false;
+
+      log("Chamada encerrada");
+      // desconectar do socket (opcional)
+      socket.disconnect();
+    }
+
+    // Quando outro usuário sai
+    socket.on('user_left', (data) => {
+      log(`${data.user} saiu da sala.`);
+
+      // limpar vídeo remoto e reiniciar PeerConnection
+      if (remoteVideo.srcObject) {
+        remoteVideo.srcObject.getTracks().forEach(t => t.stop());
+      }
+      remoteVideo.srcObject = null;
+
+      // fecha e recria conexão para uma futura chamada
+      try { pc.close(); } catch (e) { }
+      log("Conexão encerrada e resetada aguardando novo usuário");
+    });
+  </script>
+
+  <script>
+    function enviarTodosFormularios() {
+      // Seleciona todos os formulários da página
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+        // Envia cada formulário
+        form.requestSubmit(); // Moderno e seguro
+      });
+    }
+  </script>
+</body>
+
+</html>

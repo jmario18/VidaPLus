@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='prontuario.css') }}">
+    <title>Prontuario: {{paciente.nome}}</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Voltar</a></li>
+            <li><a href="{{ url_for('logout') }}">Sair</a></li>
+        </ul>
+    </nav>
+
+    <div class="content">
+
+        <h1>Prontuario: {{paciente.nome}}</h1>
+        <div class="prontuario">
+            <div class="informacoes">
+                <h2>Informações fisicas</h2>
+                <h3>Peso: {{prontuario.peso}}</h3>
+                <h3>Altura: {{prontuario.altura}}</h3>
+                {% if prontuario.observacoes != None %}
+                <h3>Observações:</h3> {{prontuario.observacoes}}
+                {% endif %}
+            </div>
+            <div class="alergias">
+                <h2>Alergias</h2>
+                <ol>
+                    {% if alergias['penicilina'] == 1 %}
+                    <li> Penicilina
+                    <li>
+                        {% endif %}
+                        {% if alergias['amoxicilina'] == 1 %}
+                    <li> Amoxilina
+                    <li>
+                        {% endif %}
+                        {% if alergias['ibuprofeno'] == 1 %}
+                    <li> Ibuprofeno
+                    <li>
+                        {% endif %}
+                        {% if alergias['dipirona'] == 1 %}
+                    <li> Dipirona
+                    <li>
+                        {% endif %}
+                        {% if alergias['extra1'] != None %}
+                    <li> {{alergias['extra1']}}
+                    <li>
+                        {% endif %}
+                        {% if alergias['extra2'] != None %}
+                    <li> {{alergias['extra2']}}
+                    <li>
+                        {% endif %}
+                        {% if alergias['extra3'] != None %}
+                    <li> {{alergias['extra3']}}
+                    <li>
+                        {% endif %}
+                </ol>
+            </div>
+            <div class="condicoes">
+                <h2>Condições Médicas</h2>
+                <ol>
+                    {% if condicoes['Pressão Alta'] == 1 %}
+                    <li> Pressão Alta
+                    <li>
+                        {% endif %}
+                        {% if condicoes['Diabetes'] == 1 %}
+                    <li> Diabetes
+                    <li>
+                        {% endif %}
+                        {% if condicoes['Asma'] == 1 %}
+                    <li> Asma
+                    <li>
+                        {% endif %}
+                        {% if condicoes['Eplepsia'] == 1 %}
+                    <li> Eplepsia
+                    <li>
+                        {% endif %}
+                        {% if condicoes['HIV'] == 1 %}
+                    <li> HIV
+                    <li>
+                        {% endif %}
+                        {% if condicoes['Gastrite'] == 1 %}
+                    <li> Gastrite
+                    <li>
+                        {% endif %}
+                        {% if condicoes['extra1'] != None %}
+                    <li> {{condicoes['extra1']}}
+                    <li>
+                        {% endif %}
+                        {% if condicoes['extra2'] != None %}
+                    <li> {{condicoes['extra2']}}
+                    <li>
+                        {% endif %}
+                        {% if condicoes['extra3'] != None %}
+                    <li> {{condicoes['extra3']}}
+                    <li>
+                        {% endif %}
+                </ol>
+            </div>
+            <div class="consultas">
+                <h2>Consultas</h2>
+                <table border="1">
+                    {% for consulta in consultas%}
+
+                    <tr>
+                        <th>ID Consulta</th>
+                        <th>Paciente</th>
+                        <th>Data</th>
+                        <th>Motivo</th>
+                        <th>Observações</th>
+                        <th>Diagnóstico</th>
+                        <th>Local Consulta</th>
+                    </tr>
+                    <tr>
+                        <td>{{ consulta.id }}</td>
+                        <td>{{ consulta.pacienteNome }}</td>
+                        <td>{{ consulta.dataConsulta }}</td>
+                        <td>{{ consulta.motivo }}</td>
+                        <td>{{ consulta.observacoes }}</td>
+                        <td>{{ consulta.diagnostico }}</td>
+                        <td>{{ consulta.local | default('Online', true) }}</td>
+                    </tr>
+
+                    {% endfor %}
+                </table>
+            </div>
+            <a href="{{url_for('gerar_pdf' , idPaciente=paciente.id)}}">Baixar</a>
+        </div>
+    </div>
+</body>
+
+</html>

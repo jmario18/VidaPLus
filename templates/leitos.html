@@ -1,12 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-        <title>Leitos</title>
-    </head>
-    <body>
-        
-    </body>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='leitos.css') }}">
+    <title>Leitos</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Voltar</a></li>
+            <li><a href="{{ url_for('logout') }}">Sair</a></li>
+        </ul>
+    </nav>
+    <div class="content">
+        <label for="buscaLocal">Buscar Local:</label>
+        <input type="text" id="buscaLocal" placeholder="Digite o nome do local..." onkeyup="filtrarLocais()">
+
+        <select id="selectLocal" name="local" onchange="filtrarLeitosPorLocal()" required>
+            <option value="">Selecione um local</option>
+            {% for local in locais %}
+            <option value="{{ local.id }}">{{ local.nome }}</option>
+            {% endfor %}
+        </select>
+
+        <table id="tabelaLeitos">
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                    <th>Unidade</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for leito in leitos %}
+                <tr data-local="{{ leito.unidadeId }}">
+                    {% if leito.statusLeito == 'indisponivel'%}
+                    <td><a href="{{url_for('verificarLeitoRoute', id=leito.id)}}">Leito {{ leito.numero }}</a></td>
+                    {% else %}
+                    <td><a href="{{url_for('gerenciarLeitoRoute', id=leito.id)}}">Leito {{ leito.numero }}</a></td>
+                    {%endif%}
+                    <td>{{ leito.tipo }}</td>
+                    <td>{{ leito.statusLeito }}</td>
+                    <td>{{leito.unidadeId}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <script>
+            function filtrarLocais() {
+                var input = document.getElementById('buscaLocal').value.toLowerCase();
+                var select = document.getElementById('selectLocal');
+                for (var i = 1; i < select.options.length; i++) {
+                    var nome = select.options[i].text.toLowerCase();
+                    select.options[i].style.display = nome.includes(input) ? '' : 'none';
+                }
+            }
+
+            function filtrarLeitosPorLocal() {
+                var select = document.getElementById('selectLocal');
+                var localId = select.value;
+                var linhas = document.querySelectorAll('#tabelaLeitos tbody tr');
+                linhas.forEach(function (linha) {
+                    if (!localId || linha.getAttribute('data-local') === localId) {
+                        linha.style.display = '';
+                    } else {
+                        linha.style.display = 'none';
+                    }
+                });
+            }
+        </script>
+
+    </div>
+</body>
+
 </html>

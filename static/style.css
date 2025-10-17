@@ -107,3 +107,9 @@ div ul li {
     align-content: center;
     justify-content: center;
 }
+
+
+th{
+    max-width: 400px;
+    border: 1px solid #000000;
+}

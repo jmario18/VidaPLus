@@ -7,8 +7,8 @@ def registrarProfissional(profissional :Profissional):
     conexao = connection.criar_conexao()
     cursor = conexao.cursor()
     try:
-        sql = "INSERT INTO Profissional (nome, email, dataNasc, crm, telefone, cargo) VALUES (%s, %s, %s, %s, %s, %s)"
-        valores = (profissional.nome, profissional.email, profissional.dataNasc, profissional.crm, profissional.telefone, profissional.cargo)
+        sql = "INSERT INTO Profissional (nome, email, dataNasc, crm, telefone, cargo, cpf) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        valores = (profissional.nome, profissional.email, profissional.dataNasc, profissional.crm, profissional.telefone, profissional.cargo, profissional.cpf)
         cursor.execute(sql, valores)
         conexao.commit()
         print("Profissional registrado com sucesso!")
@@ -39,6 +39,23 @@ def consultaProfissional(nome):
         cursor.close()
         conexao.close()
 
+def alterarProfissional(profissional :Profissional):
+    conexao = connection.criar_conexao()
+    cursor = conexao.cursor()
+    try:
+        sql = "UPDATE Profissional SET nome = %s, email = %s, dataNasc = %s, crm = %s, telefone = %s, cargo = %s WHERE profissionalId = %s"
+        valores = (profissional.nome, profissional.email, profissional.dataNasc, profissional.crm, profissional.telefone, profissional.cargo, profissional.id)
+        cursor.execute(sql, valores)
+        conexao.commit()
+        print("Profissional alterado com sucesso!")
+        return True
+    except mysql.connector.Error as erro:
+        print(f"Erro ao alterar profissional: {erro}")
+        return False
+    finally:
+        cursor.close()
+        conexao.close()
+
 def buscarProfissionais(nome):
     conexao = connection.criar_conexao()
     cursor = conexao.cursor()
@@ -64,24 +81,66 @@ def buscarProfissionais(nome):
         cursor.close()
         conexao.close()
 
+def buscarProfissionalCPF(cpf):
+    print(f'Buscando profissional com cpf:{cpf}')
+    conexao = connection.criar_conexao()
+    cursor = conexao.cursor()
+    try:
+        sql = "SELECT profissionalId FROM profissional WHERE cpf LIKE %s"
+        cursor.execute(sql, (f"%{cpf}%",))
+        resultados = cursor.fetchall()
+        idP = resultados[0]
+        p = idP[0]
+        return p
+    finally:
+        cursor.close()
+        conexao.close()
+
 def buscarProfissionalPorId(id):
     conexao = connection.criar_conexao()
     cursor = conexao.cursor()
     try:
-        sql = "SELECT * FROM profissional WHERE id = %s"
+        sql = "SELECT * FROM profissional WHERE profissionalId = %s"
         cursor.execute(sql, (id,))
         resultado = cursor.fetchone()
         if resultado:
             profissional = {
                 'id': resultado[0],
                 'nome': resultado[1],
-                'cargo': resultado[2] if len(resultado) > 2 else '',
-                'email': resultado[3] if len(resultado) > 3 else '',
-                'telefone': resultado[4] if len(resultado) > 4 else '',
-                'crm': resultado[5] if len(resultado) > 5 else ''
+                'cargo': resultado[6] if len(resultado) > 2 else '',
+                'email': resultado[2] if len(resultado) > 3 else '',
+                'telefone': resultado[5] if len(resultado) > 4 else '',
+                'crm': resultado[4] if len(resultado) > 5 else '',
+                'dataNasc':resultado[3] if len(resultado)> 6 else'',
+                'cpf':resultado[7] if len(resultado) > 7 else''
             }
             return profissional
         return None
+    finally:
+        cursor.close()
+        conexao.close()
+
+def verificaDisponibilidade(profissionalId, data):
+    conexao = connection.criar_conexao()
+    cursor = conexao.cursor()
+    try:
+        sql = "SELECT * FROM consulta WHERE profissionalId = %s AND dataConsulta = %s"
+        cursor.execute(sql, (profissionalId, data))
+        resultados = cursor.fetchall()
+        print('Resultados da verificação de disponibilidade:')
+        print(resultados)
+        for resultado in resultados:
+            print('Comparando datas:')
+            print(f'{resultado[4]}')
+            if str(resultado[4]) == f'{data}:00':
+                print("Profissional ocupado na data e hora informadas.")
+                return False
+
+        print(data)
+        print("Profissional disponível na data e hora informadas.")
+        return True
+    except mysql.connector.Error as erro:
+        print(f"Erro ao verificar disponibilidade: {erro}")
     finally:
         cursor.close()
         conexao.close()

@@ -9,11 +9,8 @@
     <body>
         <nav>
             <ul>
-                <li><a href="{{ url_for('cadastrarPacienteRoute') }}">Cadastrar Paciente</a></li>
-                <li><a href="{{ url_for('cadastrarProfissionalRoute') }}">Cadastrar Profissional</a></li>
-                <li><a href="{{ url_for('marcarConsultaRoute') }}">Consultas</a></li>
-                <li><a href="{{ url_for('buscarPacienteRoute') }}">Pacientes</a></li>
-                <li><a href="{{ url_for('buscarProfissionalRoute') }}">Profissionais</a></li>
+                <li><a href="{{ url_for('index') }}">Voltar</a></li>
+                <li><a href="{{ url_for('logout') }}">Sair</a></li>
             </ul>
         </nav>
         <div class="content">
@@ -32,7 +29,7 @@
                 {% for paciente in pacientes %}
             <li>
                 {{ paciente.nome }} - {{ paciente.cpf }}
-                <a href="{{ url_for('selecionarPacienteRoute', id=paciente.id) }}">Selecionar</a>
+                <a href="{{ url_for('selecionarPacienteRoute', id=paciente.id) }}">Selecionar</a>  <a href="{{url_for('gerar_pdf', idPaciente = paciente.id)}}" target="_blank">Relatório</a>
             </li>
                 {% endfor %}
     </ul>

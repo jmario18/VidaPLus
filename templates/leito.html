@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <title>Leito {{leito.numero}}</title>
+    </head>
+    <body>
+        <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Voltar</a></li>
+            <li><a href="{{ url_for('logout') }}">Sair</a></li>
+        </ul>
+    </nav>
+        <div class="content">
+            <form method="post">
+                <h1>Leito {{leito.numero}}</h1>
+                {% for locais in local%}
+                {% if locais.id == leito.unidadeId%}
+                <h3>Unidade: {{locais.nome}}</h3>
+                <br>
+                {% endif %}
+                {% endfor%}
+                <h3>Tipo: {{leito.tipo}}</h3>
+                <br>
+                {% if leito.statusLeito == 'disponivel' %}
+                <label for="paciente">Paciente:</label>
+                <input type="text" id="buscaPaciente" placeholder="Buscar por nome ou CPF..." onkeyup="filtrarPacientes()">
+                <select id="paciente" name="paciente" required>
+                    <option value="">Selecione um paciente</option>
+                    {% for paciente in pacientes %}
+                        <option value="{{ paciente.id }}" data-nome="{{ paciente.nome|lower }}" data-cpf="{{ paciente.cpf|lower }}">
+                            {{ paciente.nome }} (CPF: {{ paciente.cpf }})
+                        </option>
+                    {% endfor %}
+                </select><br>
+                <button type="submit">Colocar Paciente</button>
+                {% else%}
+                <h3>Paciente: {{ paciente.nome }} </h3>
+                <h3>Observacoes:</h3>
+                <p>{{leito['observacoes']}}</p>
+                <textarea id="receita" name="observacoes" ></textarea>
+                <button type="submit" name="acao" value="atualizar">Atualizar</button>
+                <button type="submit" name="acao" value="desocupar">Desocupar Leito</button>
+                {% endif %}
+            </form>
+
+
+
+            <script>
+                function filtrarPacientes() {
+                    var input = document.getElementById('buscaPaciente').value.toLowerCase();
+                    var select = document.getElementById('paciente');
+                    for (var i = 1; i < select.options.length; i++) {
+                        var nome = select.options[i].getAttribute('data-nome');
+                        var cpf = select.options[i].getAttribute('data-cpf');
+                        if (nome.includes(input) || cpf.includes(input)) {
+                            select.options[i].style.display = '';
+                        } else {
+                            select.options[i].style.display = 'none';
+                        }
+                    }
+                }
+            </script>
+
+
+        </div>
+    </body>
+</html>

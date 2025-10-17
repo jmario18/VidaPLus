@@ -1,0 +1,10 @@
+.leitos{
+    display: flex;
+    flex-wrap: wrap;
+    width: 1200px;
+    
+}
+
+.leito-card{
+    border: 1px solid #000000;
+}

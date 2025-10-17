@@ -1,0 +1,102 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>Relatórios</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Voltar</a></li>
+            <li><a href="{{ url_for('logout') }}">Sair</a></li>
+        </ul>
+    </nav>
+    <div class="content">
+        <div class="Relatorio Completo">
+            <h1>{{local}}</h1>
+            <table border="1">
+                <tr>
+                    <th>Suprimentos</th>
+                </tr>
+                <tr>
+                    <th>Soro</th>
+                    <th>Gaze</th>
+                    <th>Alcool</th>
+                    <th>Medicamento</th>
+                </tr>
+                <tr>
+                    <th>{{suprimentos.soro}}</th>
+                    <th>{{suprimentos.gaze}}</th>
+                    <th>{{suprimentos.alcool}}</th>
+                    <th>{{suprimentos.medicamento}}</th>
+                </tr>
+                {% if leitos != None %}
+                <tr>
+                    <th>Leitos</th>
+                </tr>
+                <tr>
+                    <th>Numero</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                    <th>Observacoes</th>
+                    <th>Paciente</th>
+                </tr>
+
+                {% for leito in leitos %}
+                <tr>
+                    <th>{{leito.numero}}</th>
+                    <th>{{leito.tipo}}</th>
+                    <th>{{leito.statusLeito}}</th>
+                    <th>{{leito.observacoes}}</th>
+                    {% for paciente in pacientes %}
+                    {% if paciente.id == leito.idPaciente%}
+                    <th>{{paciente.nome}}</th>
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                    {%endif%}
+                </tr>
+
+            </table>
+        </div>
+        <form method="POST">
+            <table border="1">
+                <tr>
+                    <th>Suprimento</th>
+                    <th>Quantidade</th>
+                </tr>
+                <tr>
+                    <td>Soro</td>
+                    <td>
+                        <input type="number" name="quantidade_soro" value="0" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Gaze</td>
+                    <td>
+                        <input type="number" name="quantidade_gaze" value="0" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Alcool</td>
+                    <td>
+                        <input type="number" name="quantidade_alcool" value="0" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Medicamento</td>
+                    <td>
+                        <input type="number" name="quantidade_medicamento" value="0" required>
+                    </td>
+                </tr>
+            </table>
+            <button type="submit">Adicionar/Reduzir</button>
+        </form>
+    </div>
+</body>
+
+</html>
